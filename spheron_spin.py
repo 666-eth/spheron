@@ -1,5 +1,4 @@
 import requests
-import schedule
 import time
 import logging
 
@@ -43,36 +42,35 @@ def spin_for_account(spheron_sid, account_index):
         "_ga": "GA1.1.1937733712.1748022380",
         "spheron.sid": spheron_sid
     }
-    payload = {}  # Sesuaikan payload jika diperlukan
+    payload = {}
 
     try:
         response = requests.post(url, headers=headers, cookies=cookies, json=payload)
         if response.status_code == 200:
             logging.info("Spin berhasil untuk akun %d: %s", account_index, response.json())
+            print(f"Spin berhasil untuk akun {account_index}: {response.json()}")
         else:
             logging.error("Spin gagal untuk akun %d, status %s: %s", 
                          account_index, response.status_code, response.text)
+            print(f"Spin gagal untuk akun {account_index}, status {response.status_code}")
     except Exception as e:
         logging.error("Error saat spin untuk akun %d: %s", account_index, str(e))
+        print(f"Error saat spin untuk akun {account_index}: {str(e)}")
 
 # Fungsi untuk melakukan spin untuk semua akun
 def spin_all_accounts():
     cookies = load_cookies()
     if not cookies:
         logging.error("Tidak ada cookie yang ditemukan untuk spin.")
+        print("Tidak ada cookie yang ditemukan untuk spin.")
         return
     for index, spheron_sid in enumerate(cookies, 1):
         logging.info("Memproses spin untuk akun %d", index)
+        print(f"Memproses spin untuk akun {index}")
         spin_for_account(spheron_sid, index)
         time.sleep(2)  # Jeda 2 detik antar akun
 
-# Jadwalkan spin setiap 24 jam
-schedule.every(24).hours.do(spin_all_accounts)
-
-# Jalankan spin pertama kali untuk semua akun
+# Langsung jalankan sekali
 spin_all_accounts()
 
-# Loop untuk menjalankan tugas terjadwal
-while True:
-    schedule.run_pending()
-    time.sleep(60)  # Periksa setiap menit
+print("Semua spin selesai.")
